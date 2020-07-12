@@ -1,0 +1,39 @@
+{
+ "creation": "2020-07-11 22:27:57.703392",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "helper",
+  "helper_name"
+ ],
+ "fields": [
+  {
+   "fieldname": "helper",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Helper",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "helper.name",
+   "fieldname": "helper_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Name",
+   "read_only": 1
+  }
+ ],
+ "istable": 1,
+ "modified": "2020-07-12 12:13:50.725362",
+ "modified_by": "Administrator",
+ "module": "Package Management",
+ "name": "Transportation Trip Helper",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

@@ -1,0 +1,105 @@
+{
+ "autoname": "format:TT-{vehicle}-{####}",
+ "creation": "2020-07-11 20:48:59.331248",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "vehicle",
+  "driver",
+  "driver_helpers",
+  "packages",
+  "routes",
+  "stops"
+ ],
+ "fields": [
+  {
+   "fieldname": "vehicle",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Vehicle",
+   "options": "Vehicle",
+   "reqd": 1
+  },
+  {
+   "fieldname": "driver",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Driver",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "allow_bulk_edit": 1,
+   "fieldname": "driver_helpers",
+   "fieldtype": "Table",
+   "label": "Driver Helpers",
+   "options": "Transportation Trip Helper"
+  },
+  {
+   "allow_bulk_edit": 1,
+   "fieldname": "packages",
+   "fieldtype": "Table",
+   "label": "Packages",
+   "options": "Transportation Trip Package",
+   "reqd": 1
+  },
+  {
+   "fieldname": "routes",
+   "fieldtype": "Table",
+   "label": "Routes",
+   "options": "Transportation Trip Route",
+   "reqd": 1
+  },
+  {
+   "fieldname": "stops",
+   "fieldtype": "Table",
+   "label": "Stops",
+   "options": "Transportation Trip Stop"
+  }
+ ],
+ "modified": "2020-07-12 12:36:45.331372",
+ "modified_by": "Administrator",
+ "module": "Package Management",
+ "name": "Transportation Trip",
+ "name_case": "UPPER CASE",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Freight Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Freight Driver",
+   "share": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
