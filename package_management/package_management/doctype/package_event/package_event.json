@@ -1,0 +1,104 @@
+{
+ "autoname": "format:MOV-{package}-{#####}",
+ "creation": "2020-07-11 20:33:06.077450",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "vehicle",
+  "transportation_trip",
+  "type",
+  "date",
+  "origin",
+  "destination",
+  "amended_from",
+  "column_break_7",
+  "return_code",
+  "description"
+ ],
+ "fields": [
+  {
+   "fetch_from": "transportation_trip.vehicle",
+   "fieldname": "vehicle",
+   "fieldtype": "Data",
+   "label": "Vehicle",
+   "read_only": 1
+  },
+  {
+   "fieldname": "type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Type",
+   "options": "origin\nplanned\nloaded\ntransit\ntransfer\ndelivered\nreturned\nreturned_carrier\nother",
+   "reqd": 1
+  },
+  {
+   "default": "Now",
+   "fieldname": "date",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Date of Transaction",
+   "reqd": 1
+  },
+  {
+   "fieldname": "origin",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Origin",
+   "options": "Address"
+  },
+  {
+   "fieldname": "destination",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Destination",
+   "options": "Address",
+   "reqd": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Package Event",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "return_code",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Retrun Code",
+   "options": "100\n200\n500\n501\n510\n601\n605\n701\n702\n703\n300\n507\n705\n706\n717\n728\n733\n736\n800\n824\n828\n830"
+  },
+  {
+   "fieldname": "column_break_7",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text Editor",
+   "label": "Description"
+  },
+  {
+   "fieldname": "transportation_trip",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Transportation Trip",
+   "options": "Transportation Trip"
+  }
+ ],
+ "is_submittable": 1,
+ "istable": 1,
+ "modified": "2020-07-19 15:08:26.606627",
+ "modified_by": "Administrator",
+ "module": "Package Management",
+ "name": "Package Event",
+ "name_case": "UPPER CASE",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

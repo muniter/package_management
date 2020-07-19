@@ -5,12 +5,21 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "general_information_section",
   "vehicle",
+  "vehicle_make",
+  "vehicle_model",
+  "state",
+  "column_break_5",
   "driver",
+  "driver_name",
   "driver_helpers",
+  "trip_information_section",
+  "get_packages",
   "packages",
   "routes",
-  "stops"
+  "stops",
+  "amended_from"
  ],
  "fields": [
   {
@@ -56,9 +65,67 @@
    "fieldtype": "Table",
    "label": "Stops",
    "options": "Transportation Trip Stop"
+  },
+  {
+   "fetch_from": "driver.employee_name",
+   "fieldname": "driver_name",
+   "fieldtype": "Data",
+   "label": "Driver Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "general_information_section",
+   "fieldtype": "Section Break",
+   "label": "General Information"
+  },
+  {
+   "fetch_from": "vehicle.make",
+   "fieldname": "vehicle_make",
+   "fieldtype": "Data",
+   "label": "Vehicle Make",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "vehicle.model",
+   "fieldname": "vehicle_model",
+   "fieldtype": "Data",
+   "label": "Vehicle Model",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "trip_information_section",
+   "fieldtype": "Section Break",
+   "label": "Trip Information"
+  },
+  {
+   "fieldname": "state",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "State",
+   "options": "planned\nloaded\ntransit\ncompleted",
+   "reqd": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Transportation Trip",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "get_packages",
+   "fieldtype": "Button",
+   "label": "Fill Packages"
   }
  ],
- "modified": "2020-07-12 12:36:45.331372",
+ "is_submittable": 1,
+ "modified": "2020-07-19 15:19:48.279507",
  "modified_by": "Administrator",
  "module": "Package Management",
  "name": "Transportation Trip",

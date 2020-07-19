@@ -1,0 +1,63 @@
+{
+ "creation": "2020-07-14 09:33:08.150654",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "default_origin"
+ ],
+ "fields": [
+  {
+   "fieldname": "default_origin",
+   "fieldtype": "Link",
+   "label": "Default Origin",
+   "options": "Address"
+  }
+ ],
+ "issingle": 1,
+ "modified": "2020-07-18 21:14:11.009468",
+ "modified_by": "Administrator",
+ "module": "Package Management",
+ "name": "Package Management Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Package Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Package User",
+   "share": 1
+  },
+  {
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Package Driver",
+   "share": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

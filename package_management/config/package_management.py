@@ -16,12 +16,6 @@ def get_data():
             },
             {
               "type": "doctype",
-              "name": "Package Movement",
-              "label": _("Package Movement"),
-              "description": _("The moves of each package"),
-            },
-            {
-              "type": "doctype",
               "name": "Transportation Trip",
               "label": _("Transportation Trip"),
               "description": _("The Trip each Vehicle of the Fleet does"),
@@ -31,6 +25,12 @@ def get_data():
               "name": "Transportation Route",
               "label": _(""),
               "description": _("The routes the Transportation Trips use"),
+            },
+            {
+              "type": "doctype",
+              "name": "Package Management Settings",
+              "label": _("Package Movement Settings"),
+              "description": _("Settings for the Package Module"),
             },
             {
               "type": "doctype",

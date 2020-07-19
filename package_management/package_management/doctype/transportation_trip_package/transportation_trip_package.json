@@ -5,10 +5,17 @@
  "engine": "InnoDB",
  "field_order": [
   "package",
-  "customer"
+  "destination",
+  "origin",
+  "to_collet",
+  "customer",
+  "delivered",
+  "retrurned",
+  "other"
  ],
  "fields": [
   {
+   "columns": 2,
    "fieldname": "package",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -17,16 +24,67 @@
    "reqd": 1
   },
   {
+   "columns": 1,
    "fetch_from": "package.customer",
    "fieldname": "customer",
    "fieldtype": "Data",
-   "in_list_view": 1,
    "label": "Customer",
+   "read_only": 1
+  },
+  {
+   "columns": 2,
+   "fetch_from": "package.destination",
+   "fieldname": "destination",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Destination",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "fetch_from": "package.to_collect",
+   "fieldname": "to_collet",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "To Collect",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "default": "0",
+   "fieldname": "delivered",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Delivered"
+  },
+  {
+   "columns": 1,
+   "default": "0",
+   "fieldname": "retrurned",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Returned"
+  },
+  {
+   "columns": 1,
+   "default": "0",
+   "fieldname": "other",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Other"
+  },
+  {
+   "fetch_from": "package.origin",
+   "fieldname": "origin",
+   "fieldtype": "Data",
+   "label": "Origin",
    "read_only": 1
   }
  ],
  "istable": 1,
- "modified": "2020-07-12 12:08:40.016060",
+ "modified": "2020-07-19 14:11:40.078523",
  "modified_by": "Administrator",
  "module": "Package Management",
  "name": "Transportation Trip Package",

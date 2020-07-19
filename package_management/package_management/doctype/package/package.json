@@ -1,47 +1,49 @@
 {
- "autoname": "format:{customer}-{guide}",
+ "allow_import": 1,
+ "autoname": "field:title",
  "creation": "2020-07-11 18:18:23.260396",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "company",
+  "general_information_section",
   "guide",
   "state",
-  "type",
-  "customer",
   "origin",
-  "recieved_date",
+  "received_date",
+  "column_break_4",
+  "customer",
+  "type",
   "destination",
   "delivery_date",
-  "rate",
+  "section_break_10",
   "weight",
   "weight_unit",
+  "weight_charge",
+  "column_break_14",
   "weight_vol",
   "weight_vol_unit",
+  "to_collect",
+  "section_break_18",
+  "barcode",
+  "events_section",
+  "package_event",
   "amended_from",
-  "movements",
-  "trips"
+  "title"
  ],
  "fields": [
   {
    "fieldname": "guide",
    "fieldtype": "Data",
-   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Guide Number",
-   "reqd": 1
-  },
-  {
-   "fieldname": "state",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "label": "State",
-   "options": "origin\ntransit\ndestination\nreturned",
    "reqd": 1
   },
   {
    "fieldname": "customer",
    "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Customer",
    "options": "Customer",
    "reqd": 1
@@ -50,45 +52,31 @@
    "fieldname": "weight",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Weight",
-   "reqd": 1
+   "label": "Weight"
   },
   {
+   "default": "Kg",
    "fieldname": "weight_unit",
    "fieldtype": "Link",
    "label": "Weight Unit",
-   "options": "UOM",
-   "reqd": 1
+   "options": "UOM"
   },
   {
    "fieldname": "weight_vol",
    "fieldtype": "Float",
-   "label": "Weight (Vol)",
-   "reqd": 1
+   "label": "Weight (Vol)"
   },
   {
+   "default": "Kg",
    "fieldname": "weight_vol_unit",
    "fieldtype": "Link",
    "label": "Weight (Vol) Unit",
-   "options": "UOM",
-   "reqd": 1
+   "options": "UOM"
   },
   {
    "fieldname": "delivery_date",
    "fieldtype": "Datetime",
    "label": "Delivery Date"
-  },
-  {
-   "fieldname": "recieved_date",
-   "fieldtype": "Datetime",
-   "label": "Recieved Date",
-   "reqd": 1
-  },
-  {
-   "fieldname": "rate",
-   "fieldtype": "Currency",
-   "label": "Shipping Rate",
-   "reqd": 1
   },
   {
    "fieldname": "origin",
@@ -111,49 +99,124 @@
    "label": "Amended From",
    "no_copy": 1,
    "options": "Package",
+   "permlevel": 1,
    "print_hide": 1,
    "read_only": 1
   },
   {
-   "fieldname": "company",
-   "fieldtype": "Link",
-   "label": "Company",
-   "options": "Company",
+   "fieldname": "type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Type",
+   "options": "envelope\npackage",
    "reqd": 1
   },
   {
-   "fieldname": "type",
+   "fieldname": "weight_charge",
+   "fieldtype": "Currency",
+   "label": "Weight Charged"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_10",
+   "fieldtype": "Section Break",
+   "label": "Weight and Prices"
+  },
+  {
+   "fieldname": "column_break_14",
+   "fieldtype": "Column Break"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_break_18",
+   "fieldtype": "Section Break",
+   "label": "Barcode",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "general_information_section",
+   "fieldtype": "Section Break",
+   "label": "General Information"
+  },
+  {
+   "fieldname": "to_collect",
+   "fieldtype": "Currency",
+   "label": "To Collect"
+  },
+  {
+   "fieldname": "state",
    "fieldtype": "Select",
-   "label": "Type",
-   "options": "envelope\npackage"
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "State",
+   "options": "origin\nloaded\ntransit\ndelivered\nreturned\nreturned_carrier",
+   "permlevel": 1,
+   "reqd": 1
   },
   {
-   "fieldname": "movements",
+   "fieldname": "package_event",
    "fieldtype": "Table",
-   "label": "Movements",
-   "options": "Package Movement"
+   "label": "Package Event",
+   "options": "Package Event",
+   "permlevel": 1
   },
   {
-   "fieldname": "trips",
-   "fieldtype": "Table",
-   "label": "Transportation Trips",
-   "options": "Transportation Trip"
+   "fieldname": "received_date",
+   "fieldtype": "Datetime",
+   "label": "Received Date",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "guide",
+   "fieldname": "barcode",
+   "fieldtype": "Barcode",
+   "label": "Barcode",
+   "read_only": 1
+  },
+  {
+   "fieldname": "events_section",
+   "fieldtype": "Section Break",
+   "label": "Events"
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "title",
+   "read_only": 1,
+   "unique": 1
   }
  ],
  "is_submittable": 1,
- "modified": "2020-07-11 21:35:36.171880",
+ "modified": "2020-07-19 12:16:35.684670",
  "modified_by": "Administrator",
  "module": "Package Management",
  "name": "Package",
- "name_case": "Title Case",
+ "name_case": "UPPER CASE",
  "owner": "Administrator",
  "permissions": [
+  {
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "permlevel": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
   {
    "cancel": 1,
    "create": 1,
    "delete": 1,
    "email": 1,
    "export": 1,
+   "import": 1,
    "print": 1,
    "read": 1,
    "report": 1,
@@ -163,15 +226,28 @@
    "write": 1
   },
   {
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "permlevel": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Package Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
    "cancel": 1,
    "create": 1,
    "delete": 1,
    "email": 1,
    "export": 1,
+   "import": 1,
    "print": 1,
    "read": 1,
    "report": 1,
-   "role": "Freight Manager",
+   "role": "Package Manager",
    "share": 1,
    "submit": 1,
    "write": 1
@@ -179,14 +255,46 @@
   {
    "email": 1,
    "export": 1,
+   "permlevel": 1,
    "print": 1,
    "read": 1,
    "report": 1,
-   "role": "Freight Driver",
+   "role": "Package User",
+   "share": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "import": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Package User",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "permlevel": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Package Driver",
+   "share": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Package Driver",
    "share": 1
   }
  ],
- "quick_entry": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
  "track_changes": 1
