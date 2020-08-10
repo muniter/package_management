@@ -7,11 +7,11 @@
   "package",
   "destination",
   "origin",
-  "to_collet",
+  "to_collect",
   "customer",
-  "delivered",
-  "retrurned",
-  "other"
+  "column_break_6",
+  "end_event",
+  "end_destination"
  ],
  "fields": [
   {
@@ -35,45 +35,10 @@
    "columns": 2,
    "fetch_from": "package.destination",
    "fieldname": "destination",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Destination",
-   "read_only": 1
-  },
-  {
-   "columns": 1,
-   "fetch_from": "package.to_collect",
-   "fieldname": "to_collet",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "To Collect",
-   "read_only": 1
-  },
-  {
-   "columns": 1,
-   "default": "0",
-   "fieldname": "delivered",
-   "fieldtype": "Check",
-   "in_list_view": 1,
-   "in_preview": 1,
-   "label": "Delivered"
-  },
-  {
-   "columns": 1,
-   "default": "0",
-   "fieldname": "retrurned",
-   "fieldtype": "Check",
-   "in_list_view": 1,
-   "in_preview": 1,
-   "label": "Returned"
-  },
-  {
-   "columns": 1,
-   "default": "0",
-   "fieldname": "other",
-   "fieldtype": "Check",
-   "in_list_view": 1,
-   "label": "Other"
+   "options": "Address"
   },
   {
    "fetch_from": "package.origin",
@@ -81,10 +46,35 @@
    "fieldtype": "Data",
    "label": "Origin",
    "read_only": 1
+  },
+  {
+   "fieldname": "end_event",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "End Event",
+   "options": "\norigin\ntransfer\ndelivered\nreturned\nreturned_carrier\nother"
+  },
+  {
+   "fieldname": "column_break_6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "end_destination",
+   "fieldtype": "Link",
+   "label": "End Destination",
+   "options": "Address"
+  },
+  {
+   "columns": 1,
+   "fetch_from": "package.to_collect",
+   "fieldname": "to_collect",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "To Collect"
   }
  ],
  "istable": 1,
- "modified": "2020-07-19 14:11:40.078523",
+ "modified": "2020-08-01 15:02:00.009897",
  "modified_by": "Administrator",
  "module": "Package Management",
  "name": "Transportation Trip Package",

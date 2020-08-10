@@ -1,6 +1,6 @@
 {
  "allow_import": 1,
- "autoname": "field:title",
+ "autoname": "format:{customer}-{guide}",
  "creation": "2020-07-11 18:18:23.260396",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -26,16 +26,14 @@
   "to_collect",
   "section_break_18",
   "barcode",
-  "events_section",
-  "package_event",
-  "amended_from",
-  "title"
+  "section_brake_19",
+  "events",
+  "amended_from"
  ],
  "fields": [
   {
    "fieldname": "guide",
    "fieldtype": "Data",
-   "in_standard_filter": 1,
    "label": "Guide Number",
    "reqd": 1
   },
@@ -89,9 +87,9 @@
    "fieldname": "destination",
    "fieldtype": "Link",
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Destination",
-   "options": "Address",
-   "reqd": 1
+   "options": "Address"
   },
   {
    "fieldname": "amended_from",
@@ -153,16 +151,9 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "State",
-   "options": "origin\nloaded\ntransit\ndelivered\nreturned\nreturned_carrier",
+   "options": "origin\nplanned\nloaded\ntransit\ntransfer\ndelivered\nreturned\nreturned_carrier\nother",
    "permlevel": 1,
    "reqd": 1
-  },
-  {
-   "fieldname": "package_event",
-   "fieldtype": "Table",
-   "label": "Package Event",
-   "options": "Package Event",
-   "permlevel": 1
   },
   {
    "fieldname": "received_date",
@@ -178,20 +169,21 @@
    "read_only": 1
   },
   {
-   "fieldname": "events_section",
-   "fieldtype": "Section Break",
-   "label": "Events"
+   "fieldname": "events",
+   "fieldtype": "Table",
+   "label": "Package Event",
+   "options": "Package Event",
+   "permlevel": 1
   },
   {
-   "fieldname": "title",
-   "fieldtype": "Data",
-   "label": "title",
-   "read_only": 1,
-   "unique": 1
+   "fieldname": "section_brake_19",
+   "fieldtype": "Section Break",
+   "label": "Events",
+   "permlevel": 1
   }
  ],
  "is_submittable": 1,
- "modified": "2020-07-19 12:16:35.684670",
+ "modified": "2020-07-31 21:46:19.505430",
  "modified_by": "Administrator",
  "module": "Package Management",
  "name": "Package",
@@ -295,6 +287,8 @@
    "share": 1
   }
  ],
+ "quick_entry": 1,
+ "search_fields": "destination, state",
  "sort_field": "modified",
  "sort_order": "DESC",
  "track_changes": 1

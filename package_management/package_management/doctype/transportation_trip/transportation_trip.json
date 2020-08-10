@@ -6,6 +6,7 @@
  "engine": "InnoDB",
  "field_order": [
   "general_information_section",
+  "origin",
   "vehicle",
   "vehicle_make",
   "vehicle_model",
@@ -15,9 +16,7 @@
   "driver_name",
   "driver_helpers",
   "trip_information_section",
-  "get_packages",
   "packages",
-  "routes",
   "stops",
   "amended_from"
  ],
@@ -33,7 +32,6 @@
   {
    "fieldname": "driver",
    "fieldtype": "Link",
-   "in_list_view": 1,
    "label": "Driver",
    "options": "Employee",
    "reqd": 1
@@ -54,22 +52,17 @@
    "reqd": 1
   },
   {
-   "fieldname": "routes",
-   "fieldtype": "Table",
-   "label": "Routes",
-   "options": "Transportation Trip Route",
-   "reqd": 1
-  },
-  {
    "fieldname": "stops",
    "fieldtype": "Table",
    "label": "Stops",
-   "options": "Transportation Trip Stop"
+   "options": "Transportation Trip Stop",
+   "reqd": 1
   },
   {
    "fetch_from": "driver.employee_name",
    "fieldname": "driver_name",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Driver Name",
    "read_only": 1
   },
@@ -119,13 +112,14 @@
    "read_only": 1
   },
   {
-   "fieldname": "get_packages",
-   "fieldtype": "Button",
-   "label": "Fill Packages"
+   "fieldname": "origin",
+   "fieldtype": "Link",
+   "label": "Origin",
+   "options": "Address",
+   "reqd": 1
   }
  ],
- "is_submittable": 1,
- "modified": "2020-07-19 15:19:48.279507",
+ "modified": "2020-08-01 10:35:43.272140",
  "modified_by": "Administrator",
  "module": "Package Management",
  "name": "Transportation Trip",
@@ -133,10 +127,10 @@
  "owner": "Administrator",
  "permissions": [
   {
-   "create": 1,
    "delete": 1,
    "email": 1,
    "export": 1,
+   "permlevel": 1,
    "print": 1,
    "read": 1,
    "report": 1,
@@ -152,9 +146,65 @@
    "print": 1,
    "read": 1,
    "report": 1,
-   "role": "Freight Manager",
+   "role": "System Manager",
    "share": 1,
    "write": 1
+  },
+  {
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "permlevel": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Package Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Package Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "permlevel": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Package User",
+   "share": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Package User",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "permlevel": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Package Driver",
+   "share": 1
   },
   {
    "email": 1,
@@ -162,7 +212,7 @@
    "print": 1,
    "read": 1,
    "report": 1,
-   "role": "Freight Driver",
+   "role": "Package Driver",
    "share": 1
   }
  ],
