@@ -13,26 +13,16 @@ frappe.ui.form.on('Package', {
             frappe.db.get_single_value("Package Management Settings",
                 "default_origin").then((value) => value ? frm.set_value('origin', value) : '');
         }
-        frm.trigger('buttons');
         frm.trigger('completed');
     },
-    after_save: function(frm) {
-        frm.trigger('buttons');
-    },
+    // after_save: function(frm) {
+    //     frm.trigger('completed');
+    // },
     completed: function(frm) {
-        // Things are read only if completed is checked.
         let completed = frm.doc.completed
-        console.log("Setting read_only as", completed);
-        let fields = frm.fields.filter((f) => {
-            return f.df.fieldname !== 'completed';
-        })
-        fields.forEach((f) => {
-            f.df.read_only = completed;
-        })
-        frm.refresh();
-    },
-    buttons: function (frm) {
-        if (frm.doc.fetchable && !frm.doc.completed) {
+
+        // Enable fetch button depending on completed
+        if (frm.doc.fetchable && !completed) {
             frm.add_custom_button(__("Fetch Data"), () => {
                 frm.call('fetch_package')
                     .then((r) => {
@@ -44,6 +34,18 @@ frappe.ui.form.on('Package', {
                         }
                     })
             })
+        } else {
+            frm.remove_custom_button(__("Fetch Data"))
         }
-    }
+
+        // Things are read only if completed is checked.
+        // and toggled back if not checked.
+        let fields = frm.fields.filter((f) => {
+            return f.df.fieldname !== 'completed';
+        })
+        fields.forEach((f) => {
+            f.df.read_only = completed;
+        })
+        frm.refresh_fields();
+    },
 });

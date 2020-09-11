@@ -253,7 +253,6 @@ class Package(Document):
             return
         else:
             last_item = max(self.events, key=lambda x: x.idx, default=0)
-            self.completed = True if STATE_LEVELS[last_item.type] == 3 else False
             # Set delivery date as event date if no delivery date set
             if STATE_LEVELS[last_item.type] == 3 and not self.delivery_date:
                 self.delivery_date = last_item.date
@@ -262,6 +261,16 @@ class Package(Document):
                 self.delivery_date = ''
             # Set the state as the last item type
             self.state = last_item.type
+
+    def validate_completed(self):
+        '''Method that takes care of the completed field logic
+        be automatic but allow overriding'''
+        bs_self = self.get_doc_before_save()
+        if self.completed != bs_self.completed:
+            return
+        else:
+            last_item = max(self.events, key=lambda x: x.idx, default=0)
+            self.completed = True if STATE_LEVELS[last_item.type] == 3 else False
 
     def autoname(self):
         """If field is new sets the name, if fields that set
@@ -306,6 +315,7 @@ class Package(Document):
         self.validate_no_duplicate_end_event_type_per_transporation_trip()
         self.validate_sort_events()
         self.validate_update_state()
+        self.validate_completed()
         self.validate_event_for_state()
         self.validate_delivery_date()
 
