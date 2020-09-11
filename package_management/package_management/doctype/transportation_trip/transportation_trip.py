@@ -19,13 +19,14 @@ STATE_ORDER = {
 
 STATE_LEVELS = package.STATE_LEVELS
 
+
 @frappe.whitelist()
 def update_package_fields(packages):
     """This method will be called from the client to update the package
     to_collect and destination and destination from Transportation
     Trip Packages"""
     packages = json.loads(packages)
-    print("Passed from the frontend", package, "Type of it", type(package))
+    print("Passed from the frontend", packages, "Type of it", type(packages))
     for p in packages:
         doc = frappe.get_doc('Package', p["package"])
         destination = p["destination"]
@@ -49,6 +50,7 @@ class TransportationTrip(Document):
         in the Delivery Trip"""
         package_dest = {p.destination for p in self.packages}
         # If there's no stop set It will throw and exception
+        print("Calling atuofill stops")
         try:
             stops = {s.stop for s in self.stops}
         except Exception as e:
@@ -59,87 +61,120 @@ class TransportationTrip(Document):
                        'doctype': 'Transportation Trip Stop',
                        'stop': stop
                        })
-        return True
 
     def _get_changed_packages(self):
         '''Returns a tuple with sets of Transportation Trip Packages in format
-        (removed_packages, added_packages)'''
+        (added, removed, modified)'''
+        # This method works with the actual packagage field, not the name of
+        # the Transportation Trip Package.
         bs_self = self.get_doc_before_save()
         if bs_self:
-            bs_packages = {p.name for p in bs_self.packages}
-            packages = {p.name for p in self.packages}
-            removed = list(filter(lambda x: x.name not in packages, bs_self.packages))
-            added = list(filter(lambda x: x.name
-                                not in packages, self.packages))
-            return added, removed
-        else:
-            # This means the document is new, let's return all the packages
-            # And there's no removed for obvious reason.
-            return ((self.packages, []))
+            def hash_packages(object):
+                return {(
+                    x.name,
+                    x.package,
+                    x.destination,
+                    x.to_collect,
+                    x.end_event,
+                    x.end_destination,
+                    x.return_code
+                    ) for x in object}
 
-    def create_end_events(self):
+            bs_hashed = hash_packages(bs_self.packages)
+            hashed = hash_packages(self.packages)
+            modified = hashed - bs_hashed
+            # Only the ttpackage name to apply the following filter
+            print("Pre returned modified", modified)
+            modified = [p[0] for p in modified]
+            modified = tuple(filter(lambda p: p.name in modified, self.packages))
+            # Sets with the names.
+            bs_packages = {p.package for p in bs_self.packages}
+            packages = {p.package for p in self.packages}
+            # Removed packages names
+            removed = (bs_packages - packages)
+            added = (packages - bs_packages)
+            # Replace the names with the package object it self.
+            removed = tuple(filter(lambda p: p.package in removed, bs_self.packages))
+            added = tuple(filter(lambda p: p.package in added, self.packages))
+            print("Returned value", added, removed, modified)
+            return added, removed, modified
+        else:
+            return tuple(self.packages), (), tuple(self.packages)
+
+    def create_end_events(self, packages):
         '''Create the end_event set in each Package for the
         Transportation Trip'''
-        # TODO: Fix this method to only run in changed state
-        # packages.
         date = now_datetime()
-        tt_packages = filter(lambda x: x.end_event, self.packages)
+        tt_packages = filter(lambda x: x.end_event, packages)
         for p in tt_packages:
             doc = frappe.get_doc('Package', p.package)
+
+            # Previously delete other end type events on this TT.
+            end_event_tt = filter(
+                    lambda p: p.transportation_trip == self.name
+                    and p.is_end_event,
+                    doc.events)
+            [doc.remove(row) for row in end_event_tt]
+
             destination = p.end_destination or doc.destination
             doc.append('events', {
                        'doctype': 'Package Event',
                        'type': p.end_event,
                        'origin': doc.origin,
                        'destination': destination,
+                       'return_code': p.return_code,
                        'date': date,
                        'transportation_trip': self.name,
+                       'is_end_event': True,
                        })
             doc.save(ignore_permissions=True)
 
-    def create_or_update_event(self, packages, event_type,
+    def create_or_update_event(self, packages, event_type, update=True,
                                origin=None, date=None, destination=None):
         '''Creates or updates an event to go with a Transportation Trip
         state'''
-        event_level = STATE_LEVELS[event_type]
-        date = date or now_datetime()
-        for package in packages:
-            doc = frappe.get_doc('Package', package.package)
-            events = [row for row in doc.events
-                      if row.transportation_trip == self.name]
+        transportation_trip_level = STATE_LEVELS[event_type]
+        if transportation_trip_level == 3:
+            self.create_end_events(packages)
+        else:
+            date = date or now_datetime()
+            for package in packages:
+                doc = frappe.get_doc('Package', package.package)
+                events = [row for row in doc.events
+                          if row.transportation_trip == self.name]
 
-            # Delete all events of higher level than current TT State level
-            remove = filter(lambda x: STATE_LEVELS[x.type] > event_level,
-                            events)
-            [doc.remove(row) for row in remove]
+                # Delete all events of higher level than current TT State level
+                remove = filter(lambda x: STATE_LEVELS[x.type] > transportation_trip_level
+                                or STATE_LEVELS[x.type] == 1, events)
+                [doc.remove(row) for row in remove]
 
-            # Setting up values
-            origin = origin or doc.origin
-            destination = destination or doc.destination
+                # Setting up values
+                origin = origin or doc.origin
+                destination = destination or doc.destination
 
-            event_for_type = next(filter(lambda e:
-                                         e.type == event_type, events), None)
+                event_for_type = next(filter(lambda e:
+                                             e.type == event_type, events), None)
 
-            # If event of the type exists update it
-            if event_for_type:
-                event = event_for_type
-                event.transportation_trip = self.name
-                event.origin = origin
-                event.destination = destination
-                event.date = date
-            else:
-                # Since it doesn't exist let's create it
-                doc.append('events', {
-                           'doctype': 'Package Event',
-                           'type': event_type,
-                           'origin': origin,
-                           'date': date,
-                           # 'idx': 2,
-                           'destination': destination,
-                           'transportation_trip': self.name,
-                           })
-            # After all save
-            doc.save(ignore_permissions=True)
+                # If event of the type exists update it if the flag is set.
+                if event_for_type and update:
+                    event = event_for_type
+                    event.transportation_trip = self.name
+                    event.origin = origin
+                    event.destination = destination
+                    event.date = date
+                elif not event_for_type:
+                    # Since it doesn't exist let's create it
+                    doc.append('events', {
+                               'doctype': 'Package Event',
+                               'type': event_type,
+                               'origin': origin,
+                               'date': date,
+                               # 'idx': 2,
+                               'destination': destination,
+                               'transportation_trip': self.name,
+                               })
+                # After all save
+                doc.save(ignore_permissions=True)
 
     def delete_events_for_removed_packages(self, packages):
         '''Delete the packages events related to this transportation trip
@@ -226,34 +261,38 @@ class TransportationTrip(Document):
             incorret_state = [
                     p.package for p in added if
                     STATE_LEVELS[
-                        frappe.get_doc('Package', p.package).state] > 2]
+                        frappe.get_doc('Package', p.package).state] != 1]
             if any(incorret_state):
                 frappe.throw(_('Packages {0} are not available to be in Transportation Trip'.format(', '.join(incorret_state))))
 
     def validate_handle_package_events(self):
         """Create/Update the event in the Package Doctype when
         the Transportation Trip changes it's state"""
-        past_self = self.get_doc_before_save()
+        bs_self = self.get_doc_before_save()
         # Sends back a tuple
-        added, removed = self._get_changed_packages()
+        added, removed, modified = self._get_changed_packages()
+        completed = self.state != 'completed'
+        state_changed = bs_self and bs_self.state != self.state
 
-        # If state changed run the method on all packages
-        if self.is_new() or self.state != past_self.state:
-            # When state is completed, just create the end_events
-            if self.state != 'completed':
-                self.create_or_update_event(
-                        packages=self.packages,
-                        event_type=self.state
-                        )
-            else:
-                self.create_end_events()
-        elif any(added):
+        # If the state changed upate the events
+        # otherwise just creation
+        update = state_changed
+
+        # If the state changed run in all
+        if state_changed:
             self.create_or_update_event(
-                    transportation_trip=self.name,
-                    packages=added,
-                    event_type=self.state
+                    packages=self.packages,
+                    event_type=self.state,
+                    update=update
                     )
-
+        # Else If any package has been modified including the
+        # added create or update
+        elif any(modified):
+            self.create_or_update_event(
+                    packages=modified,
+                    event_type=self.state,
+                    update=update
+                    )
         # If any package has been removed remove it's events
         if any(removed):
             self.delete_events_for_removed_packages(removed)
@@ -297,7 +336,7 @@ class TransportationTrip(Document):
             for p in self.packages:
                 doc = frappe.get_doc('Package', p.package)
                 events = doc.events
-                delete = filter(
-                        lambda e: e.transportation_trip == self.name, events)
+                delete = list(filter(
+                        lambda e: e.transportation_trip == self.name, events))
                 [doc.remove(row) for row in delete]
                 doc.save(ignore_permissions=True)

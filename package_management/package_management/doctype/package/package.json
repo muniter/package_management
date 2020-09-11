@@ -11,24 +11,38 @@
   "state",
   "origin",
   "received_date",
+  "delivery_date",
+  "completed",
+  "reported",
   "column_break_4",
   "customer",
   "type",
+  "origin_real",
   "destination",
-  "delivery_date",
+  "address",
+  "observation",
+  "other_information_section",
+  "sender_name",
+  "sender_id",
+  "column_break_18",
+  "receiver_name",
+  "receiver_id",
+  "receiver_phone",
   "section_break_10",
   "weight",
-  "weight_unit",
-  "weight_charge",
-  "column_break_14",
   "weight_vol",
-  "weight_vol_unit",
+  "weight_charged",
+  "column_break_14",
+  "weight_unit",
   "to_collect",
   "section_break_18",
   "barcode",
   "section_brake_19",
   "events",
-  "amended_from"
+  "fetch_information",
+  "fetchable",
+  "to_fetch",
+  "fetches"
  ],
  "fields": [
   {
@@ -43,7 +57,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Customer",
-   "options": "Customer",
+   "options": "Package Management Customer",
    "reqd": 1
   },
   {
@@ -65,13 +79,6 @@
    "label": "Weight (Vol)"
   },
   {
-   "default": "Kg",
-   "fieldname": "weight_vol_unit",
-   "fieldtype": "Link",
-   "label": "Weight (Vol) Unit",
-   "options": "UOM"
-  },
-  {
    "fieldname": "delivery_date",
    "fieldtype": "Datetime",
    "label": "Delivery Date"
@@ -79,8 +86,8 @@
   {
    "fieldname": "origin",
    "fieldtype": "Link",
-   "label": "Origin",
-   "options": "Address",
+   "label": "Origin System",
+   "options": "Package Location",
    "reqd": 1
   },
   {
@@ -89,17 +96,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Destination",
-   "options": "Address"
-  },
-  {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "Package",
-   "permlevel": 1,
-   "print_hide": 1,
-   "read_only": 1
+   "options": "Package Location"
   },
   {
    "fieldname": "type",
@@ -109,11 +106,6 @@
    "label": "Type",
    "options": "envelope\npackage",
    "reqd": 1
-  },
-  {
-   "fieldname": "weight_charge",
-   "fieldtype": "Currency",
-   "label": "Weight Charged"
   },
   {
    "fieldname": "column_break_4",
@@ -180,10 +172,105 @@
    "fieldtype": "Section Break",
    "label": "Events",
    "permlevel": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "reported",
+   "fieldtype": "Check",
+   "label": "Reported",
+   "permlevel": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "completed",
+   "fieldtype": "Check",
+   "label": "Completed",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "origin_real",
+   "fieldtype": "Link",
+   "label": "Origin",
+   "options": "Package Location"
+  },
+  {
+   "fieldname": "address",
+   "fieldtype": "Data",
+   "label": "Address"
+  },
+  {
+   "fieldname": "weight_charged",
+   "fieldtype": "Float",
+   "label": "Weight Charged"
+  },
+  {
+   "fieldname": "fetches",
+   "fieldtype": "Table",
+   "label": "Fetches",
+   "options": "Package Information Fetch",
+   "permlevel": 2
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "fetch_information",
+   "fieldtype": "Section Break",
+   "label": "Fetch Information"
+  },
+  {
+   "default": "0",
+   "fieldname": "fetchable",
+   "fieldtype": "Check",
+   "label": "Fetchable",
+   "permlevel": 2
+  },
+  {
+   "default": "0",
+   "fieldname": "to_fetch",
+   "fieldtype": "Check",
+   "label": "To Fetch",
+   "permlevel": 2
+  },
+  {
+   "fieldname": "other_information_section",
+   "fieldtype": "Section Break",
+   "label": "Other Information"
+  },
+  {
+   "fieldname": "sender_name",
+   "fieldtype": "Data",
+   "label": "Sender Name"
+  },
+  {
+   "fieldname": "sender_id",
+   "fieldtype": "Data",
+   "label": "Sender ID"
+  },
+  {
+   "fieldname": "column_break_18",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "receiver_name",
+   "fieldtype": "Data",
+   "label": "Receiver Name"
+  },
+  {
+   "fieldname": "receiver_id",
+   "fieldtype": "Data",
+   "label": "Receiver ID"
+  },
+  {
+   "fieldname": "receiver_phone",
+   "fieldtype": "Data",
+   "label": "Receiver Phone"
+  },
+  {
+   "fieldname": "observation",
+   "fieldtype": "Data",
+   "label": "Observation"
   }
  ],
- "is_submittable": 1,
- "modified": "2020-07-31 21:46:19.505430",
+ "modified": "2020-09-11 11:27:32.099220",
  "modified_by": "Administrator",
  "module": "Package Management",
  "name": "Package",
@@ -194,6 +281,18 @@
    "delete": 1,
    "email": 1,
    "export": 1,
+   "permlevel": 2,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "delete": 1,
+   "email": 1,
+   "export": 1,
    "permlevel": 1,
    "print": 1,
    "read": 1,
@@ -203,7 +302,6 @@
    "write": 1
   },
   {
-   "cancel": 1,
    "create": 1,
    "delete": 1,
    "email": 1,
@@ -214,8 +312,17 @@
    "report": 1,
    "role": "System Manager",
    "share": 1,
-   "submit": 1,
    "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "permlevel": 2,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Package Manager",
+   "share": 1
   },
   {
    "delete": 1,
@@ -230,7 +337,6 @@
    "write": 1
   },
   {
-   "cancel": 1,
    "create": 1,
    "delete": 1,
    "email": 1,
@@ -241,8 +347,17 @@
    "report": 1,
    "role": "Package Manager",
    "share": 1,
-   "submit": 1,
    "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "permlevel": 2,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Package User",
+   "share": 1
   },
   {
    "email": 1,
@@ -259,7 +374,6 @@
    "delete": 1,
    "email": 1,
    "export": 1,
-   "import": 1,
    "print": 1,
    "read": 1,
    "report": 1,

@@ -11,7 +11,8 @@
   "customer",
   "column_break_6",
   "end_event",
-  "end_destination"
+  "end_destination",
+  "return_code"
  ],
  "fields": [
   {
@@ -38,7 +39,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Destination",
-   "options": "Address"
+   "options": "Package Location"
   },
   {
    "fetch_from": "package.origin",
@@ -62,7 +63,7 @@
    "fieldname": "end_destination",
    "fieldtype": "Link",
    "label": "End Destination",
-   "options": "Address"
+   "options": "Package Location"
   },
   {
    "columns": 1,
@@ -71,10 +72,16 @@
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "To Collect"
+  },
+  {
+   "fieldname": "return_code",
+   "fieldtype": "Select",
+   "label": "Return Code",
+   "options": "\n100\n200\n500\n501\n510\n601\n605\n701\n702\n703\n300\n507\n705\n706\n717\n728\n733\n736\n800\n824\n828\n830"
   }
  ],
  "istable": 1,
- "modified": "2020-08-01 15:02:00.009897",
+ "modified": "2020-09-01 11:23:38.370689",
  "modified_by": "Administrator",
  "module": "Package Management",
  "name": "Transportation Trip Package",

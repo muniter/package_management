@@ -1,0 +1,36 @@
+{
+ "creation": "2020-08-31 09:30:11.213665",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "succesful",
+  "note"
+ ],
+ "fields": [
+  {
+   "default": "0",
+   "fieldname": "succesful",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Succesful",
+   "width": "2"
+  },
+  {
+   "fieldname": "note",
+   "fieldtype": "Code",
+   "in_list_view": 1,
+   "label": "Note"
+  }
+ ],
+ "istable": 1,
+ "modified": "2020-08-31 11:47:45.843636",
+ "modified_by": "Administrator",
+ "module": "Package Management",
+ "name": "Package Information Fetch",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

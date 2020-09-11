@@ -3,6 +3,7 @@
 # For license information, please see license.txt
 
 from __future__ import unicode_literals
+from . import fetch
 import frappe
 from frappe import _
 from frappe.utils import now_datetime
@@ -19,6 +20,7 @@ STATE_LEVELS = {
         "planned": 2,
         "loaded": 2.1,
         "transit": 2.2,
+        "completed": 3,  # For the TransportationTrip
         "delivered": 3,
         "returned_carrier": 3,
         "other": 3
@@ -73,14 +75,66 @@ def quick_package_creation(customer, packages):
         return 1
 
 
+def fetch_package_info(packages=[]):
+    print("RUNNING FETCH PACKAGE")
+    if not any(packages):
+        packages = frappe.db.get_all(
+                doctype='Package',
+                filters={
+                    'fetchable': True,
+                    'to_fetch': True,
+                    },
+                fields=['name', 'guide', 'customer'])
+
+    print("Fetching packages", packages)
+    # Get the different companies since the fetching is different
+    # Dictionary with customer name, customer_id
+    customers = {p.customer for p in packages}
+    customers = {
+            c: frappe.get_doc('Package Management Customer', c).customer_id
+            for c in customers
+        }
+
+    for customer, customer_id in customers.items():
+        tofetch = list(filter(lambda p: p.customer == customer, packages))
+        method = getattr(fetch, f'{customer_id}_fetch', False)
+        if callable(method):
+            # If there's actually a method let's get the whole
+            # package object and pass it to the fetch function.
+            tofetch = list(map(
+                lambda p: frappe.get_doc('Package', p.name), tofetch
+                ))
+            method(tofetch)
+            return True
+        else:
+            print(f"No method fetch found for customer {customer}")
+
+
 class Package(Document):
+
+    def fetch_package(self):
+        print("Calling fetch_package")
+        result = fetch_package_info([self])
+        if result:
+            return True
+
+    def can_be_fetched(self):
+        '''Determines if a package can be fetched or not, meaning a method
+        to fetch it exists.'''
+        customer = frappe.get_doc('Package Management Customer', self.customer)
+        customer_id = customer.customer_id
+        method = getattr(fetch, f'{customer_id}_fetch', False)
+        if method:
+            return True
+        else:
+            return False
 
     def validate_check_dupliate(self):
 
         same_guide = frappe.db.get_all(
             doctype='Package',
             filters={'guide': self.guide, 'name': ['!=', self.name]},
-            fields=['name', 'guide', 'amended_from']
+            fields=['name', 'guide']
             )
 
         if same_guide:
@@ -113,7 +167,20 @@ class Package(Document):
             events = [e.type for e in self.events
                       if e.transportation_trip == t]
             if len(events) != len(set(events)):
-                frappe.throw(_(f"Duplicate event type for Trip {0} in Package {1}".format(t, self.name)))
+                frappe.throw(_("Duplicate event type for Trip {0} in Package {1}".format(t, self.name)))
+
+    def validate_no_duplicate_end_event_type_per_transporation_trip(self):
+        '''Check for no duplicate end events type per transportation Trip'''
+
+        events = self.events
+        trans_trips = {e.transportation_trip for e in self.events
+                       if e.transportation_trip}
+
+        for t in trans_trips:
+            # Only capture end events, level 3
+            end_events = list(filter(lambda e: e.is_end_event and e.transportation_trip == t, events))
+            if len(end_events) > 1:
+                frappe.throw(_("Duplicate end event type for Trip {0} in Package {1}".format(t, self.name)))
 
     def validate_sort_events(self):
         '''Sort the child table events'''
@@ -176,6 +243,26 @@ class Package(Document):
             if self.received_date > self.delivery_date:
                 frappe.throw(_("Delivery date must be later than received date"))
 
+    def validate_update_state(self):
+        """This method takes care of the state field logic,
+        takes adventage of table elements being sorted already
+        and also sets delivery date if state is in END_STATES"""
+        db_state = frappe.db.get_value('Package', self.name, 'state')
+        # If state has been changed manually don't trigger
+        if self.state != db_state:
+            return
+        else:
+            last_item = max(self.events, key=lambda x: x.idx, default=0)
+            self.completed = True if STATE_LEVELS[last_item.type] == 3 else False
+            # Set delivery date as event date if no delivery date set
+            if STATE_LEVELS[last_item.type] == 3 and not self.delivery_date:
+                self.delivery_date = last_item.date
+            # Remove deliver date if new state is not in END_STATES
+            elif STATE_LEVELS[last_item.type] < 3 and self.delivery_date:
+                self.delivery_date = ''
+            # Set the state as the last item type
+            self.state = last_item.type
+
     def autoname(self):
         """If field is new sets the name, if fields that set
         the name have changed, renames"""
@@ -199,33 +286,24 @@ class Package(Document):
 
         return f"{customer}-{self.guide}"
 
-    def validate_update_state(self):
-        """This method takes care of the state field logic,
-        takes adventage of table elements being sorted already
-        and also sets delivery date if state is in END_STATES"""
-        db_state = frappe.db.get_value('Package', self.name, 'state')
-        # If state has been changed manually don't trigger
-        if self.state != db_state:
-            return
-        else:
-            last_item = max(self.events, key=lambda x: x.idx, default=0)
-            # Set delivery date as event date if no delivery date set
-            if STATE_LEVELS[last_item.type] == 3 and not self.delivery_date:
-                self.delivery_date = last_item.date
-            # Remove deliver date if new state is not in END_STATES
-            elif STATE_LEVELS[last_item.type] < 3 and self.delivery_date:
-                self.delivery_date = ''
-            # Set the state as the last item type
-            self.state = last_item.type
-
     def before_save(self):
         pass
+
+    def after_insert(self):
+        '''Check if the package can be fetch, and set the proper status'''
+        if self.can_be_fetched():
+            self.fetchable = True
+            self.tofetch = True
+        else:
+            self.fetchable = False
+            self.tofetch = False
 
     def validate(self):
         self.validate_dates()
         self.validate_check_dupliate()
         self.validate_create_origin_event()
         self.validate_no_duplicate_event_type_per_transporation_trip()
+        self.validate_no_duplicate_end_event_type_per_transporation_trip()
         self.validate_sort_events()
         self.validate_update_state()
         self.validate_event_for_state()
@@ -233,12 +311,3 @@ class Package(Document):
 
     def on_update(self):
         self.autoname()
-
-    def before_submit(self):
-        if self.delivery_date:
-            return
-        else:
-            frappe.throw(_("Set delivery date before submitting the document."))
-
-            if self.state not in ['deilvered', 'returned']:
-                frappe.throw(_("Set package as delivered or returned before submitting the document."))

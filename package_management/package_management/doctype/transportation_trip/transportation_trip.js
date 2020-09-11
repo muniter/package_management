@@ -1,154 +1,4 @@
-// Dialog to set end_event state to packages in this
-// transportation trip.
-let createEvents = function(frm) {
-    // Default origin, is used to set the end_destination on returns, etc.
-    let dialog = new frappe.ui.Dialog({
-        title: 'Quick Package Entry',
-        fields: [
-            {
-                label: __('Barcode'),
-                fieldname: 'barcode',
-                fieldtype: 'Data',
-            },
-            {
-                label: __('Event'),
-                fieldname: 'event',
-                fieldtype: 'Select',
-                options: frappe.meta.get_docfield('Transportation Trip Package', 'end_event').options,
-                reqd: 1
-            },
-            {
-                // TODO: Hidden depending on event type
-                label: __('End Destination'),
-                fieldname: 'end_destination',
-                fieldtype: 'Link',
-                options: 'Address',
-                reqd: 0
-            },
-            {
-                label: __('Packages'),
-                fieldname: 'packages',
-                fieldtype: 'Table',
-                cannot_add_rows: false,
-                reqd: 1,
-                in_place_edit: true,
-                data: get_data(),
-                fields: [
-                {
-                    label: __('Package'),
-                    fieldtype:'Link',
-                    fieldname:'package',
-                    options: 'Package',
-                    in_list_view: 1,
-                    read_only: 0,
-                    reqd: 1,
-                    get_query: () => {
-                        let trip_packages = frm.doc.packages.map(x => x.package)
-                        return {filters: {name:['in', trip_packages] }};
-                    }
-                },
-                {
-                    // TODO: Only visible when return state
-                    label: __('RC'),
-                    fieldtype:'Select',
-                    fieldname:'return_code',
-                    // TODO: Fix this not working. Ideally this field should be created dynamically.
-                    // Meaning once returned is selected, add this field to the dialog, after resolving
-                    // the promise that gets its value.
-                    // options: frappe.meta.get_docfield('Package Event', 'return_code').options,
-                    in_list_view: 1,
-                    hidden: 1,
-                    read_only: 0,
-                    reqd: 1,
-                }
-                ]
-            }
-        ],
-        primary_action_label: __('Set Event'),
-        primary_action(values) {
-            console.log(values);
-            dialog.hide();
-            // Cleanup, I only need the package name.
-            values.packages = values.packages.map((x) => x.package);
-            frm.doc.packages.map((x) => {
-                if (values.packages.includes(x.package)) {
-                    x.end_event = values.event;
-                }
-            })
-            frm.refresh_field('packages');
-            frm.dirty();
-        }
-
-    });
-
-    // Set the packages field as the selected packages in the form packages field.
-    // if anything is selected, and clears the selection.
-    function get_data() {
-        let data = [];
-        let grid = frm.fields_dict.packages.grid;
-        let selected = frm.get_selected().packages;
-
-        let packages = frm.doc.packages;
-        if (selected) {
-            selected.forEach((x) => {
-                data.push({package: packages.find(e => e.name === x).package})
-            });
-        };
-        // Clear the selection
-        grid.grid_rows.map(r => {r.doc.__checked = 0;});
-        return data
-    };
-
-    // Event to track value of event field, to show or hide destination field.
-    // and set the default value accordingly.
-    let end_destination = dialog.fields_dict.end_destination
-    dialog.$wrapper.on('change', 'select[data-fieldname="event"]', (e) => {
-        let target = e.currentTarget;
-        if (target.value === 'delivered') {
-            end_destination.$wrapper.hide();
-            end_destination.set_value('');
-        } else {
-            end_destination.$wrapper.show();
-            end_destination.set_value(frm.doc.origin);
-        };
-    });
-
-    // Event for enter event in the input fields, meaning when the barcode scanner is used.
-    // Adds it to the packages if it maches any package guide on the list.
-    dialog.$wrapper.on('keydown', 'input[data-fieldname="barcode"]', (e) => {
-        if(e.which === 13) {
-            // Stop Propagation and default event, otherwise the dialog primary action is executed.
-            e.preventDefault();
-            e.stopPropagation();
-            // The guide number is after the first hypen, so slice it on the index of -
-            let input_field = e.currentTarget
-            let grid = dialog.fields_dict.packages.grid;
-            let df = dialog.fields_dict.packages.df;
-            let pack = frm.doc.packages.filter((x) => x.package.slice(x.package.indexOf('-')+1) === input_field.value);
-            // There should only be one match.
-            if (pack.length) {
-                // Check is not already scanned, e.g part of df.data.array
-                if (!df.data.filter((x) => x.package === pack[0].package).length) {
-                    df.data.push({
-                        idx: df.data.length + 1,
-                        package: pack[0].package
-                    })
-                } else {
-                    frappe.show_alert(__("Package with guide {0} is already in the list", [input_field.value]))
-                }
-                // Clear checked items
-                grid.refresh();
-                input_field.value = ''
-            } else {
-                frappe.show_alert(__("No package found with guide {0} in this trip", [input_field.value]))
-            }
-            input_field.value = ''
-        }
-    });
-    dialog.show();
-};
-
-// Form Script
+// Form script for Transportation Trip
 frappe.ui.form.on('Transportation Trip', {
     onload(frm) {
         // Create the window_to_update array for updating changes in pacakgers to_collect and destination
@@ -160,7 +10,9 @@ frappe.ui.form.on('Transportation Trip', {
             }
         });
 
+        // Trigger state for the buttons to populate.
         frm.trigger('state');
+        // Set query to select the packages.
         frm.set_query("package", "packages", () => {
             let curr_packages = frm.doc.packages.map(x => x.package);
             return {
@@ -170,9 +22,8 @@ frappe.ui.form.on('Transportation Trip', {
                 }
             }
         });
-    },
-    onload_post_render(frm) {
-        // Adding multiple add button to Table field.
+
+        // Further setup
         frm.get_field("stops").grid.set_multiple_add("stop");
         frm.get_field("packages").grid.set_multiple_add("package");
     },
@@ -213,6 +64,8 @@ frappe.ui.form.on('Transportation Trip', {
         frm.trigger('state');
     },
     state(frm) {
+        // Remove all buttons fierts
+        frm.clear_custom_buttons();
         let state = frm.doc.state;
         let packages = frm.doc.packages;
         if (['planned', 'loaded'].includes(state)) {
@@ -228,7 +81,7 @@ frappe.ui.form.on('Transportation Trip', {
             frm.add_custom_button(__("Fill from Stops"), () => {
                 let stops = frm.doc.stops.map(x => x.stop);
                 console.log(stops);
-                let curr_packages = frm.doc.packages.map(x => x.package);
+                let curr_packages = packages.map(x => x.package);
                 frappe.db.get_list('Package', {
                     fields: ['name'],
                     page_length: 100,
@@ -245,12 +98,7 @@ frappe.ui.form.on('Transportation Trip', {
                     frm.refresh_field('packages');
                 });
             });
-            frm.remove_custom_button(__("Create Events"));
-        } else if (state === 'transit') {
-            frm.remove_custom_button(__("Autofill Stops"));
-            frm.remove_custom_button(__("Create Events"));
         } else if (state === 'completed') {
-            frm.remove_custom_button(__("Autofill Stops"));
             frm.add_custom_button(__("Create Events"), () => {
                 createEvents(frm);
             });
@@ -263,8 +111,11 @@ frappe.ui.form.on('Transportation Trip', {
                     frm.doc.packages.forEach(x => {
                         x.end_event = '';
                         x.end_destination = '';
+                        x.return_code = '';
                     })
                     frm.refresh()
+                    // Have to trigger again since a bug hides the buttons.
+                    frm.trigger('state')
                 },
                 () => {
                     // If No, set back the state to initial state, completed.
@@ -275,19 +126,21 @@ frappe.ui.form.on('Transportation Trip', {
     }
 });
 
-// Child table events
+// Form script for Transportation Trip Package child table.
 frappe.ui.form.on('Transportation Trip Package', {
-    // destination(frm, cdt, cdn) {
-    // },
     to_collect(frm, cdt, cdn) {
         // Added to the window object to be processed in the before_save hook
         // In which changes to this object will be propagated to the parent
-        window.packages_to_update.add(cdn);
+        if (cdn !== undefined) {
+            window.packages_to_update.add(cdn);
+        }
     },
     destination(frm, cdt, cdn) {
         // Added to the window object to be processed in the before_save hook
         // In which changes to this object will be propagated to the parent
-        window.packages_to_update.add(cdn);
+        if (cdn !== undefined) {
+            window.packages_to_update.add(cdn);
+        }
     },
     package(frm, cdt, cdn) {
         frm.refresh();
@@ -316,21 +169,178 @@ frappe.ui.form.on('Transportation Trip Package', {
     }
 });
 
-// function multiSelect(frm) {
-//     new frappe.ui.form.MultiSelectDialog({
-//         doctype: "Package",
-//         target: this.cur_frm,
-//         setters: {
-//             company: "Zoot"
-//         },
-//         date_field: "transaction_date",
-//         get_query() {
-//             return {
-//                 filters: { docstatus: ['!=', 2] }
-//             }
-//         },
-//         action(selections) {
-//             console.log(selections);
-//         }
-//     });
-// }
+// Function that handles the dialog for setting the end events.
+function createEvents(frm) {
+    // Default origin, is used to set the end_destination on returns, etc.
+    let dialog = new frappe.ui.Dialog({
+        title: 'Quick Package Entry',
+        fields: [
+            {
+                label: __('Barcode'),
+                fieldname: 'barcode',
+                fieldtype: 'Data',
+            },
+            {
+                label: __('Event'),
+                fieldname: 'event',
+                fieldtype: 'Select',
+                options: frappe.meta.get_docfield('Transportation Trip Package', 'end_event').options,
+                reqd: 1
+            },
+            {
+                // TODO: Hidden depending on event type
+                label: __('End Destination'),
+                fieldname: 'end_destination',
+                fieldtype: 'Link',
+                options: 'Package Location',
+                default: frm.doc.origin,
+                reqd: 0
+            },
+            {
+                label: __('Packages'),
+                fieldname: 'packages',
+                fieldtype: 'Table',
+                cannot_add_rows: false,
+                reqd: 1,
+                in_place_edit: true,
+                data: get_data(),
+                fields: [
+                {
+                    label: __('Package'),
+                    fieldtype:'Link',
+                    fieldname:'package',
+                    options: 'Package',
+                    in_list_view: 1,
+                    read_only: 0,
+                    reqd: 1,
+                    get_query: () => {
+                        let trip_packages = frm.doc.packages.map(x => x.package)
+                        return {filters: {name:['in', trip_packages] }};
+                    }
+                },
+                {
+                    label: __('RC'),
+                    fieldtype:'Select',
+                    fieldname:'return_code',
+                    options: frm.fields_dict.packages.grid.fields_map.return_code.options,
+                    in_list_view: 1,
+                    hidden: 1,
+                    read_only: 0,
+                    reqd: 1,
+                }
+                ]
+            }
+        ],
+        primary_action_label: __('Set Event'),
+        primary_action(values) {
+            console.log(values);
+            dialog.hide();
+
+            frm.doc.packages.map((p) => {
+                let dialog_package = values.packages.find(x => x.package === p.package)
+                if (dialog_package) {
+                    p.end_event = values.event;
+                    p.return_code = dialog_package.return_code;
+                    p.end_destination = values.end_destination;
+                }
+            })
+            frm.refresh_field('packages');
+            frm.dirty();
+        }
+
+    });
+
+    // OBJECT EVENTS //
+
+    // Set the packages field as the selected packages in the form packages table
+    // if anything is selected, and clears the selection.
+    function get_data() {
+        let data = [];
+        let grid = frm.fields_dict.packages.grid;
+        let selected = frm.get_selected().packages;
+
+        let packages = frm.doc.packages;
+        if (selected) {
+            selected.forEach((x) => {
+                data.push({package: packages.find(e => e.name === x).package})
+            });
+        };
+        // Clear the selection
+        grid.grid_rows.map(r => {r.doc.__checked = 0;});
+        return data
+    };
+
+    // Event to track value of event field, to show or hide destination field.
+    // or return code field if returned event is selected
+    let end_destination = dialog.fields_dict.end_destination;
+    let packages = dialog.fields_dict.packages;
+    dialog.$wrapper.on('change', 'select[data-fieldname="event"]', (e) => {
+        let target = e.currentTarget;
+        if (target.value === 'delivered') {
+            end_destination.$wrapper.hide();
+            end_destination.set_value('');
+        } else if (target.value === 'returned') {
+            // Create a new table field with RC, hide the old one
+            let wrapper = packages.wrapper;
+            packages.grid.fields_map.return_code.hidden = 0;
+            packages.make();
+            wrapper.remove();
+            dialog.refresh();
+        } else {
+            // end_destination.set_value('');
+            if (packages.grid.fields_map.return_code.hidden === 0) {
+                // Create a new table field without RC, hide the old one
+                let wrapper = packages.wrapper;
+                packages.grid.fields_map.return_code.hidden = 1;
+                packages.make();
+                wrapper.hidden = true;
+                dialog.refresh();
+            }
+            end_destination.$wrapper.show();
+            end_destination.set_value(frm.doc.origin);
+        };
+    });
+
+    // Event for enter event in the input fields, meaning when the barcode scanner is used.
+    // Adds it to the packages if it maches any package guide on the list.
+    dialog.$wrapper.on('keydown', 'input[data-fieldname="barcode"]', (e) => {
+        // Return/Enter key is pressed.
+        if(e.which === 13) {
+            // Stop Propagation and default event, otherwise the dialog primary action is executed.
+            e.preventDefault();
+            e.stopPropagation();
+            // The guide number is after the first hypen, so slice it on the index of -
+            let inputfield = e.currentTarget;
+            let guide = processGuide(inputfield.value)
+            e.currentTarget.value = '';
+            let grid = dialog.fields_dict.packages.grid;
+            let df = dialog.fields_dict.packages.df;
+            let pack = frm.doc.packages.filter((x) => x.package.slice(x.package.indexOf('-')+1) === guide);
+            // There should only be one match.
+            if (pack.length) {
+                // Check is not already scanned, e.g part of df.data.array
+                if (!df.data.filter((x) => x.package === pack[0].package).length) {
+                    df.data.push({
+                        idx: df.data.length + 1,
+                        package: pack[0].package
+                    })
+                } else {
+                    frappe.show_alert(__("Package with guide {0} is already in the list", [guide]))
+                }
+                // Clear checked items
+                grid.refresh();
+                guide = ''
+            } else {
+                frappe.show_alert(__("No package found with guide {0} in this trip", [guide]))
+            }
+            guide = ''
+        }
+    });
+    // Open the dialog when the function is called.
+    dialog.show();
+};
+
+function processGuide(guide) {
+    let re = /^(\d{4}20\d{2})(\d{5,20})$/;
+    return guide.replace(re, '$2')
+}

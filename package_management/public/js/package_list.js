@@ -73,7 +73,7 @@ function quickPackageCreation () {
             e.stopPropagation();
             // The guide number is after the first hypen, so slice it on the index of -
             let input_field = e.currentTarget
-            let guide = input_field.value
+            let guide = processGuide(input_field.value);
             let grid = dialog.fields_dict.packages.grid;
             let df = dialog.fields_dict.packages.df;
             // There should only be one match.
@@ -98,11 +98,18 @@ function quickPackageCreation () {
     dialog.show();
 }
 
+function processGuide(guide) {
+    let re = /^(\d{4}20\d{2})(\d{5,20})$/;
+    return guide.replace(re, '$2')
+}
+
 frappe.listview_settings['Package'] = {
     onload: function(listview) {
-        doctype = listview.doctype
-        fltr.add_filter(doctype, 'state','not in', ['returned_carrier', 'delivered', 'other']);
-        frappe.route.options = { "state": "origin" }
+        let completed_filter = ['Package', 'completed', '=', 0, false]
+        console.log("The filters", listview.filters);
+        if (!fltr.get_filters().includes(completed_filter)) {
+            fltr.add_filter(completed_filter[0], completed_filter[1], completed_filter[2], completed_filter[3]);
+        }
         listview.page.add_menu_item(__('Quick Entry'), function () {
             quickPackageCreation();
         });
@@ -112,4 +119,3 @@ frappe.listview_settings['Package'] = {
         });
     }
 };
-

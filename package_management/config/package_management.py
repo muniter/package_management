@@ -22,22 +22,22 @@ def get_data():
             },
             {
               "type": "doctype",
-              "name": "Transportation Route",
-              "label": _(""),
-              "description": _("The routes the Transportation Trips use"),
-            },
-            {
-              "type": "doctype",
-              "name": "Package Management Settings",
-              "label": _("Package Movement Settings"),
+              "name": "Package Management Customer",
+              "label": _("Customers"),
               "description": _("Settings for the Package Module"),
             },
             {
               "type": "doctype",
-              "name": "Customers",
-              "label": _(""),
-              "description": _("The routes the Transportation Trips use"),
+              "name": "Package Location",
+              "label": _("Locations"),
+              "description": _("Settings for the Package Module"),
             },
+            {
+              "type": "doctype",
+              "name": "Package Management Settings",
+              "label": _("Settings"),
+              "description": _("Settings for the Package Module"),
+            }
           ]
       }
       ]

@@ -13,6 +13,37 @@ frappe.ui.form.on('Package', {
             frappe.db.get_single_value("Package Management Settings",
                 "default_origin").then((value) => value ? frm.set_value('origin', value) : '');
         }
-
+        frm.trigger('buttons');
+        frm.trigger('completed');
     },
+    after_save: function(frm) {
+        frm.trigger('buttons');
+    },
+    completed: function(frm) {
+        // Things are read only if completed is checked.
+        let completed = frm.doc.completed
+        console.log("Setting read_only as", completed);
+        let fields = frm.fields.filter((f) => {
+            return f.df.fieldname !== 'completed';
+        })
+        fields.forEach((f) => {
+            f.df.read_only = completed;
+        })
+        frm.refresh();
+    },
+    buttons: function (frm) {
+        if (frm.doc.fetchable && !frm.doc.completed) {
+            frm.add_custom_button(__("Fetch Data"), () => {
+                frm.call('fetch_package')
+                    .then((r) => {
+                        if (r.message) {
+                            frappe.show_alert(__("Succesful Update, Reloading document"))
+                            frm.reload_doc();
+                        } else {
+                            frappe.show_alert(__("No data updated"))
+                        }
+                    })
+            })
+        }
+    }
 });

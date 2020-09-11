@@ -11,7 +11,7 @@
   "date",
   "origin",
   "destination",
-  "amended_from",
+  "is_end_event",
   "column_break_7",
   "return_code",
   "description"
@@ -45,24 +45,15 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Origin",
-   "options": "Address"
+   "options": "Package Location"
   },
   {
    "fieldname": "destination",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Destination",
-   "options": "Address",
+   "options": "Package Location",
    "reqd": 1
-  },
-  {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "Package Event",
-   "print_hide": 1,
-   "read_only": 1
   },
   {
    "fieldname": "return_code",
@@ -86,11 +77,18 @@
    "in_list_view": 1,
    "label": "Transportation Trip",
    "options": "Transportation Trip"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_end_event",
+   "fieldtype": "Check",
+   "label": "End Event",
+   "read_only": 1
   }
  ],
  "is_submittable": 1,
  "istable": 1,
- "modified": "2020-07-27 10:55:06.179245",
+ "modified": "2020-09-11 12:06:40.966577",
  "modified_by": "Administrator",
  "module": "Package Management",
  "name": "Package Event",

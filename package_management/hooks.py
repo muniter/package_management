@@ -27,7 +27,7 @@ app_license = "Apache 2"
 
 # include js in doctype views
 # doctype_js = {"doctype" : "public/js/doctype.js"}
-doctype_list_js = {"Package": "public/js/package_entry.js"}
+doctype_list_js = {"Package": "public/js/package_list.js"}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -91,9 +91,15 @@ doctype_list_js = {"Package": "public/js/package_entry.js"}
 # Scheduled Tasks
 # ---------------
 
+scheduler_events = {
+        "all": [
+            "package_management.doctype.package.fetch_package_info"
+            ]
+        }
+
 # scheduler_events = {
 # 	"all": [
-# 		"package_management.tasks.all"
+# 		"package_management.doctype.package.fetch_package_info"
 # 	],
 # 	"daily": [
 # 		"package_management.tasks.daily"

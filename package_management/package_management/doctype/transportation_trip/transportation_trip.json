@@ -10,6 +10,7 @@
   "vehicle",
   "vehicle_make",
   "vehicle_model",
+  "date",
   "state",
   "column_break_5",
   "driver",
@@ -17,8 +18,7 @@
   "driver_helpers",
   "trip_information_section",
   "packages",
-  "stops",
-  "amended_from"
+  "stops"
  ],
  "fields": [
   {
@@ -103,23 +103,22 @@
    "reqd": 1
   },
   {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "Transportation Trip",
-   "print_hide": 1,
-   "read_only": 1
-  },
-  {
    "fieldname": "origin",
    "fieldtype": "Link",
    "label": "Origin",
-   "options": "Address",
+   "options": "Package Location",
+   "reqd": 1
+  },
+  {
+   "default": "now",
+   "fieldname": "date",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Date",
    "reqd": 1
   }
  ],
- "modified": "2020-08-01 10:35:43.272140",
+ "modified": "2020-09-01 11:20:49.397424",
  "modified_by": "Administrator",
  "module": "Package Management",
  "name": "Transportation Trip",
