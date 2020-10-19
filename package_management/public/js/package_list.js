@@ -105,8 +105,9 @@ function processGuide(guide) {
 
 frappe.listview_settings['Package'] = {
     onload: function(listview) {
+        let doctype = 'Package'
         let completed_filter = ['Package', 'completed', '==', false]
-        fltr.add_filter(completed_filter[0], completed_filter[1], completed_filter[2], completed_filter[3]);
+        // fltr.add_filter(completed_filter[0], completed_filter[1], completed_filter[2], completed_filter[3]);
         console.log("The filters", listview.filters);
         if (!fltr.get_filters().includes(completed_filter)) {
             console.log("Adding filter");
