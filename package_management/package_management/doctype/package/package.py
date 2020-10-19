@@ -266,7 +266,7 @@ class Package(Document):
         '''Method that takes care of the completed field logic
         be automatic but allow overriding'''
         bs_self = self.get_doc_before_save()
-        if self.completed != bs_self.completed:
+        if bs_self and self.completed != bs_self.completed:
             return
         else:
             last_item = max(self.events, key=lambda x: x.idx, default=0)
@@ -298,7 +298,7 @@ class Package(Document):
     def before_save(self):
         pass
 
-    def after_insert(self):
+    def validate_fetch(self):
         '''Check if the package can be fetch, and set the proper status'''
         if self.can_be_fetched():
             self.fetchable = True
@@ -318,6 +318,7 @@ class Package(Document):
         self.validate_completed()
         self.validate_event_for_state()
         self.validate_delivery_date()
+        self.validate_fetch()
 
     def on_update(self):
         self.autoname()
